@@ -44,7 +44,7 @@ export function Header() {
             <OrganizationSwitcher />
             <CustomUserButton />
             <SignedOut>
-              <SignInButton>
+              <SignInButton mode="modal">
                 <Button>Sign In</Button>
               </SignInButton>
             </SignedOut>

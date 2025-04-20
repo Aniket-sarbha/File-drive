@@ -1,7 +1,13 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth, SignInButton } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
 
 export default function LandingPage() {
+  const { isSignedIn } = useAuth();
+
   return (
     <div className="bg-white">
       <div className="relative isolate px-6 pt-14 lg:px-8">
@@ -35,12 +41,20 @@ export default function LandingPage() {
               minute.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Link
-                href="/dashboard/files"
-                className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Get started
-              </Link>
+              {isSignedIn ? (
+                <Link
+                  href="/dashboard/files"
+                  className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                  Get started
+                </Link>
+              ) : (
+                <SignInButton mode="modal" redirectUrl="/dashboard/files">
+                  <Button className="bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                    Get started
+                  </Button>
+                </SignInButton>
+              )}
               <a
                 href="#"
                 className="text-sm font-semibold leading-6 text-gray-900"
