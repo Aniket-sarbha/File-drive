@@ -6,15 +6,21 @@ import { FileIcon, StarIcon, TrashIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function SideNav() {
+export function SideNav({ onItemClick }: { onItemClick?: () => void }) {
   const pathname = usePathname();
 
+  const handleItemClick = () => {
+    if (onItemClick) {
+      onItemClick();
+    }
+  };
+
   return (
-    <div className="w-40 flex flex-col gap-4">
-      <Link href="/dashboard/files">
+    <div className="w-full md:w-40 flex flex-col gap-4">
+      <Link href="/dashboard/files" onClick={handleItemClick}>
         <Button
           variant={"link"}
-          className={clsx("flex gap-2", {
+          className={clsx("flex gap-2 w-full justify-start", {
             "text-blue-500": pathname.includes("/dashboard/files"),
           })}
         >
@@ -22,10 +28,10 @@ export function SideNav() {
         </Button>
       </Link>
 
-      <Link href="/dashboard/favorites">
+      <Link href="/dashboard/favorites" onClick={handleItemClick}>
         <Button
           variant={"link"}
-          className={clsx("flex gap-2", {
+          className={clsx("flex gap-2 w-full justify-start", {
             "text-blue-500": pathname.includes("/dashboard/favorites"),
           })}
         >
@@ -33,10 +39,10 @@ export function SideNav() {
         </Button>
       </Link>
 
-      <Link href="/dashboard/trash">
+      <Link href="/dashboard/trash" onClick={handleItemClick}>
         <Button
           variant={"link"}
-          className={clsx("flex gap-2", {
+          className={clsx("flex gap-2 w-full justify-start", {
             "text-blue-500": pathname.includes("/dashboard/trash"),
           })}
         >

@@ -37,7 +37,7 @@ export function SearchBar({
   }
 
   return (
-    <div>
+    <div className="w-full">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -47,9 +47,9 @@ export function SearchBar({
             control={form.control}
             name="query"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full">
                 <FormControl>
-                  <Input {...field} placeholder="your file names" />
+                  <Input {...field} placeholder="your file names" className="w-full" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -60,12 +60,13 @@ export function SearchBar({
             size="sm"
             type="submit"
             disabled={form.formState.isSubmitting}
-            className="flex gap-1"
+            className="flex gap-1 whitespace-nowrap"
           >
             {form.formState.isSubmitting && (
               <Loader2 className="h-4 w-4 animate-spin" />
             )}
-            <SearchIcon /> Search
+            <SearchIcon className="h-4 w-4" />
+            <span className="hidden sm:inline">Search</span>
           </Button>
         </form>
       </Form>

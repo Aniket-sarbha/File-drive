@@ -37,7 +37,8 @@ import {
   FileSpreadsheetIcon,
   X as XIcon,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Plus
 } from "lucide-react";
 import { Doc, Id } from "../../../../convex/_generated/dataModel";
 import { Progress } from "@/components/ui/progress";
@@ -87,6 +88,8 @@ export function UploadButton() {
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  // Add a new state for tracking form submission attempt
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -221,7 +224,17 @@ export function UploadButton() {
     }
   };
 
+  // Update the onSubmit function to handle validation explicitly
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    // Reset the attempted submit state
+    setAttemptedSubmit(true);
+    
+    // Check if a file is selected
+    if (!values.file || !values.file[0]) {
+      setFileError("Please select a file");
+      return;
+    }
+
     if (!orgId) return;
 
     try {
@@ -317,16 +330,16 @@ export function UploadButton() {
       const fileExt = selectedFileName.split('.').pop()?.toLowerCase();
       
       if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt || '')) {
-        return <ImageIcon className="h-10 w-10 text-blue-500" />;
+        return <ImageIcon className="h-8 w-8 md:h-10 md:w-10 text-blue-500" />;
       } else if (fileExt === 'pdf') {
-        return <FileTextIcon className="h-10 w-10 text-red-500" />;
+        return <FileTextIcon className="h-8 w-8 md:h-10 md:w-10 text-red-500" />;
       } else if (['csv', 'xlsx', 'xls'].includes(fileExt || '')) {
-        return <FileSpreadsheetIcon className="h-10 w-10 text-green-500" />;
+        return <FileSpreadsheetIcon className="h-8 w-8 md:h-10 md:w-10 text-green-500" />;
       } else {
-        return <File className="h-10 w-10 text-gray-500" />;
+        return <File className="h-8 w-8 md:h-10 md:w-10 text-gray-500" />;
       }
     }
-    return <UploadCloud className="h-16 w-16 text-gray-400 mb-2" />;
+    return <UploadCloud className="h-12 w-12 md:h-16 md:w-16 text-gray-400 mb-2" />;
   };
 
   return (
@@ -340,23 +353,29 @@ export function UploadButton() {
           setSelectedFileName(null);
           setUploadStatus('idle');
           setUploadProgress(0);
+          setFileError(null);
+          setAttemptedSubmit(false);
         }
       }}
     >
       <DialogTrigger asChild>
-        <Button>Upload File</Button>
+        <Button className="flex gap-1 items-center whitespace-nowrap">
+          <Plus className="h-4 w-4" /> 
+          <span className="hidden sm:inline">Upload File</span>
+          <span className="sm:hidden">Upload</span>
+        </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-w-[95vw] p-3 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="mb-4">Upload your file</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="mb-2 text-center md:text-left">Upload your file</DialogTitle>
+          <DialogDescription className="text-center md:text-left">
             Drag and drop your file or click to browse
           </DialogDescription>
         </DialogHeader>
 
         <div>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
               <FormField
                 control={form.control}
                 name="file"
@@ -365,8 +384,8 @@ export function UploadButton() {
                     <FormControl>
                       <div 
                         className={`border-2 ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'} 
-                                    ${fileError ? 'border-red-500' : ''}
-                                    border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer
+                                    ${fileError || (attemptedSubmit && !selectedFileName) ? 'border-red-500' : ''}
+                                    border-dashed rounded-lg p-4 md:p-6 flex flex-col items-center justify-center cursor-pointer
                                     transition-colors duration-200 ease-in-out`}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
@@ -387,7 +406,7 @@ export function UploadButton() {
                         />
 
                         {filePreview ? (
-                          <div className="relative w-40 h-40 mb-4">
+                          <div className="relative w-32 h-32 md:w-40 md:h-40 mb-2 md:mb-4">
                             <Image
                               src={filePreview}
                               alt="File preview"
@@ -403,14 +422,14 @@ export function UploadButton() {
                             </button>
                           </div>
                         ) : (
-                          <div className={`flex flex-col items-center ${selectedFileName ? 'py-4' : 'py-8'}`}>
+                          <div className={`flex flex-col items-center ${selectedFileName ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}>
                             {getFileIcon()}
                             {!selectedFileName && (
                               <>
-                                <p className="mt-2 text-sm text-gray-500">
+                                <p className="mt-2 text-xs md:text-sm text-center text-gray-500">
                                   <span className="font-semibold">Click to upload</span> or drag and drop
                                 </p>
-                                <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs text-gray-500 mt-1 text-center px-2">
                                   PNG, JPG, GIF, PDF, DOCX or CSV (max 20MB)
                                 </p>
                               </>
@@ -419,23 +438,23 @@ export function UploadButton() {
                         )}
 
                         {selectedFileName && !filePreview && (
-                          <div className="flex items-center mt-2 bg-gray-100 rounded-md p-2 pl-4 pr-2 w-full">
-                            <div className="flex-1 truncate text-sm">{selectedFileName}</div>
+                          <div className="flex items-center mt-2 bg-gray-100 rounded-md p-2 pl-3 pr-2 w-full">
+                            <div className="flex-1 truncate text-xs md:text-sm">{selectedFileName}</div>
                             <button
                               type="button"
                               className="ml-2 bg-white rounded-full p-1 border border-gray-300"
                               onClick={clearSelectedFile}
                             >
-                              <XIcon className="h-4 w-4 text-gray-500" />
+                              <XIcon className="h-3 w-3 md:h-4 md:w-4 text-gray-500" />
                             </button>
                           </div>
                         )}
 
-                        {fileError && (
-                          <div className="text-red-500 text-xs mt-2 flex items-center">
-                            <AlertCircle className="h-4 w-4 mr-1" />
-                            {fileError}
-                          </div>
+                        {(fileError || (attemptedSubmit && !selectedFileName)) && (
+                          <span className="text-red-500 text-xs mt-2 flex items-center">
+                            <AlertCircle className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                            {fileError || "Please select a file"}
+                          </span>
                         )}
                       </div>
                     </FormControl>
@@ -449,7 +468,7 @@ export function UploadButton() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel className="text-sm">Title</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="Enter a title for your file" />
                     </FormControl>
@@ -469,24 +488,25 @@ export function UploadButton() {
               )}
 
               {uploadStatus === 'success' && (
-                <div className="flex items-center text-green-600 text-sm">
-                  <CheckCircle className="h-5 w-5 mr-2" />
+                <div className="flex items-center text-green-600 text-xs md:text-sm">
+                  <CheckCircle className="h-4 w-4 md:h-5 md:w-5 mr-2" />
                   Upload complete!
                 </div>
               )}
 
               {uploadStatus === 'error' && (
-                <div className="flex items-center text-red-600 text-sm">
-                  <AlertCircle className="h-5 w-5 mr-2" />
+                <div className="flex items-center text-red-600 text-xs md:text-sm">
+                  <AlertCircle className="h-4 w-4 md:h-5 md:w-5 mr-2" />
                   Upload failed. Please try again.
                 </div>
               )}
 
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
                 <Button
                   type="button"
                   variant="outline" 
-                  className="mr-2"
+                  size="sm"
+                  className="text-xs md:text-sm"
                   onClick={() => setIsFileDialogOpen(false)}
                   disabled={uploadStatus === 'uploading'}
                 >
@@ -494,12 +514,13 @@ export function UploadButton() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={!selectedFileName || uploadStatus === 'uploading' || uploadStatus === 'success'}
-                  className="flex gap-1"
+                  size="sm"
+                  disabled={uploadStatus === 'uploading' || uploadStatus === 'success'}
+                  className="flex gap-1 text-xs md:text-sm"
                 >
                   {uploadStatus === 'uploading' ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" />
                       Uploading...
                     </>
                   ) : 'Upload'}
