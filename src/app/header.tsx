@@ -66,7 +66,7 @@ export function Header() {
                 <CustomUserButton />
               </div>
               <SignedOut>
-                <SignInButton>
+                <SignInButton mode="modal">
                   <Button className="w-full">Sign In</Button>
                 </SignInButton>
               </SignedOut>
