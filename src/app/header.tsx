@@ -6,13 +6,13 @@ import {
   SignInButton,
   SignedIn,
   SignedOut,
-  UserButton,
   useSession,
 } from "@clerk/nextjs";
 import { Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { CustomUserButton } from "@/components/ui/custom-user-button";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -42,7 +42,7 @@ export function Header() {
 
           <div className="flex gap-2">
             <OrganizationSwitcher />
-            <UserButton />
+            <CustomUserButton />
             <SignedOut>
               <SignInButton>
                 <Button>Sign In</Button>
@@ -63,7 +63,7 @@ export function Header() {
             <div className="flex flex-col gap-2 w-full">
               <div className="flex justify-between items-center">
                 <OrganizationSwitcher />
-                <UserButton />
+                <CustomUserButton />
               </div>
               <SignedOut>
                 <SignInButton>

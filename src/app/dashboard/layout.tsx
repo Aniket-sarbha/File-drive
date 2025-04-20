@@ -29,23 +29,15 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (orgId) {
-      console.log("Attempting to join organization:", orgId);
-      
       // Join the organization when the dashboard loads
       joinOrg({ orgId })
-        .then((result) => {
-          console.log("Join organization result:", result);
-        })
         .catch((error) => {
-          console.error("Failed to join organization:", error);
           toast({
             title: "Organization error",
             description: "Failed to join this organization",
             variant: "destructive",
           });
         });
-    } else {
-      console.log("No organization ID found in URL params:", params);
     }
   }, [joinOrg, orgId, params, toast]);
 

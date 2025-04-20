@@ -27,11 +27,8 @@ export async function hasAccessToOrg(
   const identity = await ctx.auth.getUserIdentity();
 
   if (!identity) {
-    console.log("No identity found");
     return null;
   }
-
-  console.log("Identity:", identity);
   
   const user = await ctx.db
     .query("users")
@@ -41,20 +38,14 @@ export async function hasAccessToOrg(
     .first();
 
   if (!user) {
-    console.log("No user found with token:", identity.tokenIdentifier);
     return null;
   }
-
-  console.log("User orgIds:", user.orgIds);
-  console.log("User tokenIdentifier:", user.tokenIdentifier);
-  console.log("Looking for orgId:", orgId);
   
   const hasAccess =
     user.orgIds.some((item) => item.orgId === orgId) ||
     user.tokenIdentifier.includes(orgId);
 
   if (!hasAccess) {
-    console.log("User does not have access to this org");
     return null;
   }
 
