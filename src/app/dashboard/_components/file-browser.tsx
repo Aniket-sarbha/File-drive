@@ -83,7 +83,7 @@ export function FileBrowser({
       isFavorited: (favorites ?? []).some(
         (favorite) => favorite.fileId === file._id
       ),
-      url: "", // Using empty string instead of null to match the string type
+      url: file.url, // Use the actual URL from the file object
     })) ?? [];
 
   return (
