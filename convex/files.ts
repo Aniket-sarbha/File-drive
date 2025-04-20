@@ -27,9 +27,12 @@ export async function hasAccessToOrg(
   const identity = await ctx.auth.getUserIdentity();
 
   if (!identity) {
+    console.log("No identity found");
     return null;
   }
 
+  console.log("Identity:", identity);
+  
   const user = await ctx.db
     .query("users")
     .withIndex("by_tokenIdentifier", (q) =>
@@ -38,14 +41,20 @@ export async function hasAccessToOrg(
     .first();
 
   if (!user) {
+    console.log("No user found with token:", identity.tokenIdentifier);
     return null;
   }
 
+  console.log("User orgIds:", user.orgIds);
+  console.log("User tokenIdentifier:", user.tokenIdentifier);
+  console.log("Looking for orgId:", orgId);
+  
   const hasAccess =
     user.orgIds.some((item) => item.orgId === orgId) ||
     user.tokenIdentifier.includes(orgId);
 
   if (!hasAccess) {
+    console.log("User does not have access to this org");
     return null;
   }
 
@@ -268,3 +277,22 @@ async function hasAccessToFile(
 
   return { user: hasAccess.user, file };
 }
+
+export const getFileById = query({
+  args: { fileId: v.id("files") },
+  async handler(ctx, args) {
+    const access = await hasAccessToFile(ctx, args.fileId);
+
+    if (!access) {
+      throw new ConvexError("no access to file");
+    }
+
+    const file = access.file;
+    const url = await ctx.storage.getUrl(file.fileId);
+
+    return {
+      ...file,
+      url
+    };
+  },
+});

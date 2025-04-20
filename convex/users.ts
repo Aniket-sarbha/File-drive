@@ -3,6 +3,7 @@ import {
   MutationCtx,
   QueryCtx,
   internalMutation,
+  mutation,
   query,
 } from "./_generated/server";
 import { roles } from "./schema";
@@ -120,4 +121,81 @@ export const getMe = query({
 
     return user;
   },
+});
+
+// Add this after your getMe query
+export const ensureUserExists = mutation({
+  args: {},
+  async handler(ctx) {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new ConvexError("Not authenticated");
+    }
+
+    // Check if user already exists
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_tokenIdentifier", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .first();
+
+    // If user exists, return it
+    if (existingUser) {
+      return existingUser;
+    }
+
+    // Otherwise create the user
+    const userId = await ctx.db.insert("users", {
+      tokenIdentifier: identity.tokenIdentifier,
+      orgIds: [],
+      name: identity.name || "",
+      image: identity.pictureUrl || "",
+    });
+
+    return await ctx.db.get(userId);
+  },
+});
+
+// Add this after the ensureUserExists mutation
+export const joinOrganization = mutation({
+  args: { orgId: v.string() },
+  async handler(ctx, args) {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new ConvexError("Not authenticated");
+    }
+
+    // Get or create the user
+    let user = await ctx.db
+      .query("users")
+      .withIndex("by_tokenIdentifier", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier)
+      )
+      .first();
+
+    if (!user) {
+      const userId = await ctx.db.insert("users", {
+        tokenIdentifier: identity.tokenIdentifier,
+        orgIds: [{ orgId: args.orgId, role: "member" }],
+        name: identity.name || "",
+        image: identity.pictureUrl || "",
+      });
+      return { success: true };
+    }
+
+    // Check if user is already in the organization
+    if (user.orgIds.some(org => org.orgId === args.orgId)) {
+      return { success: true, alreadyJoined: true };
+    }
+
+    // Add the user to the organization
+    await ctx.db.patch(user._id, {
+      orgIds: [...user.orgIds, { orgId: args.orgId, role: "member" }]
+    });
+
+    return { success: true };
+  }
 });

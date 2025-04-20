@@ -80,6 +80,7 @@ export function FileBrowser({
       isFavorited: (favorites ?? []).some(
         (favorite) => favorite.fileId === file._id
       ),
+      url: "", // Using empty string instead of null to match the string type
     })) ?? [];
 
   return (
@@ -144,7 +145,7 @@ export function FileBrowser({
         </TabsContent>
       </Tabs>
 
-      {files?.length === 0 && <Placeholder />}
+      {!isLoading && files?.length === 0 && <Placeholder />}
     </div>
   );
 }

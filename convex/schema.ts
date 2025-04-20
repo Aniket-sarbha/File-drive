@@ -4,7 +4,8 @@ import { v } from "convex/values";
 export const fileTypes = v.union(
   v.literal("image"),
   v.literal("csv"),
-  v.literal("pdf")
+  v.literal("pdf"),
+  v.literal("docx"),
 );
 
 export const roles = v.union(v.literal("admin"), v.literal("member"));
@@ -17,6 +18,7 @@ export default defineSchema({
     fileId: v.id("_storage"),
     userId: v.id("users"),
     shouldDelete: v.optional(v.boolean()),
+    summary: v.optional(v.string()),
   })
     .index("by_orgId", ["orgId"])
     .index("by_shouldDelete", ["shouldDelete"]),
