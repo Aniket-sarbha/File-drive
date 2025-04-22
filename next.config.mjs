@@ -3,7 +3,7 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: "https://rugged-gecko-347.convex.cloud",
+        hostname: "rugged-gecko-347.convex.cloud",
       },
     ],
   },

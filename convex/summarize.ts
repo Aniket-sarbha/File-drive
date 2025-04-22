@@ -8,6 +8,8 @@ import { internal, api } from "./_generated/api";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 // We'll import the PDF parser in a safe way
 const pdfParseLib = require("pdf-parse/lib/pdf-parse.js");
+// Import mammoth for DOCX parsing
+const mammoth = require("mammoth");
 
 // Initialize Gemini only if API key is available
 const genAI = process.env.GEMINI_API_KEY 
@@ -77,6 +79,10 @@ export const summarizeFile = action({
       textContent = pdfData.text;
     } else if (file.type === "csv") {
       textContent = await response.text();
+    } else if (file.type === "docx") {
+      const arrayBuffer = await response.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer });
+      textContent = result.value;
     } else {
       // Image or other types (OCR placeholder)
       textContent = "Image file: " + file.name;

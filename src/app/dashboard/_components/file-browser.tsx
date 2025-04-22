@@ -141,6 +141,7 @@ export function FileBrowser({
                   <SelectItem value="image">Image</SelectItem>
                   <SelectItem value="csv">CSV</SelectItem>
                   <SelectItem value="pdf">PDF</SelectItem>
+                  <SelectItem value="docx">Word Doc</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -167,6 +168,7 @@ export function FileBrowser({
                   <SelectItem value="image">Image</SelectItem>
                   <SelectItem value="csv">CSV</SelectItem>
                   <SelectItem value="pdf">PDF</SelectItem>
+                  <SelectItem value="docx">Word Doc</SelectItem>
                 </SelectContent>
               </Select>
             </div>

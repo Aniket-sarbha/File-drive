@@ -16,6 +16,7 @@ import {
   FileTextIcon,
   Brain,
   Loader2,
+  EyeIcon,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -33,6 +34,7 @@ import { api } from "../../../../convex/_generated/api";
 import { useToast } from "@/components/ui/use-toast";
 import { Protect } from "@clerk/nextjs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FilePreview } from "./preview/file-preview";
 
 export function FileCardActions({
   file,
@@ -50,6 +52,7 @@ export function FileCardActions({
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
 
   // Function to handle summarization
@@ -153,11 +156,22 @@ export function FileCardActions({
         </DialogContent>
       </Dialog>
 
+      {/* File Preview Dialog */}
+      <FilePreview file={file} isOpen={isPreviewOpen} onOpenChange={setIsPreviewOpen} />
+
       <DropdownMenu>
         <DropdownMenuTrigger>
           <MoreVertical />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
+          {/* Preview option - available for all file types */}
+          <DropdownMenuItem
+            onClick={() => setIsPreviewOpen(true)}
+            className="flex gap-1 items-center cursor-pointer"
+          >
+            <EyeIcon className="w-4 h-4" /> Preview
+          </DropdownMenuItem>
+          
           <DropdownMenuItem
             onClick={() => {
               if (!file.url) return;
@@ -169,7 +183,7 @@ export function FileCardActions({
           </DropdownMenuItem>
 
           {/* Summarize option */}
-          {(file.type === "pdf" || file.type === "csv") && (
+          {(file.type === "pdf" || file.type === "csv" || file.type === "docx") && (
             <DropdownMenuItem
               onClick={handleSummarize}
               disabled={summaryLoading}
