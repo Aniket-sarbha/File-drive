@@ -5,7 +5,8 @@ import { api } from "../../../../convex/_generated/api";
 import { UploadButton } from "./upload-button";
 import { FileCard } from "./file-card";
 import Image from "next/image";
-import { FilterIcon, GridIcon, Loader2, RowsIcon } from "lucide-react";
+import { FiFilter, FiGrid, FiList } from "react-icons/fi";
+import { BiLoaderAlt } from "react-icons/bi";
 import { SearchBar } from "./search-bar";
 import { useState } from "react";
 import { DataTable } from "./file-table";
@@ -103,11 +104,11 @@ export function FileBrowser({
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
           <TabsList className="mb-2">
             <TabsTrigger value="grid" className="flex gap-2 items-center">
-              <GridIcon />
+              <FiGrid />
               <span className="hidden sm:inline">Grid</span>
             </TabsTrigger>
             <TabsTrigger value="table" className="flex gap-2 items-center">
-              <RowsIcon /> 
+              <FiList /> 
               <span className="hidden sm:inline">Table</span>
             </TabsTrigger>
           </TabsList>
@@ -120,7 +121,7 @@ export function FileBrowser({
               className="sm:hidden"
               onClick={() => setFilterMenuOpen(!filterMenuOpen)}
             >
-              <FilterIcon className="h-4 w-4 mr-2" />
+              <FiFilter className="h-4 w-4 mr-2" />
               Filter
             </Button>
 
@@ -141,7 +142,6 @@ export function FileBrowser({
                   <SelectItem value="image">Image</SelectItem>
                   <SelectItem value="csv">CSV</SelectItem>
                   <SelectItem value="pdf">PDF</SelectItem>
-                  <SelectItem value="docx">Word Doc</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -168,7 +168,6 @@ export function FileBrowser({
                   <SelectItem value="image">Image</SelectItem>
                   <SelectItem value="csv">CSV</SelectItem>
                   <SelectItem value="pdf">PDF</SelectItem>
-                  <SelectItem value="docx">Word Doc</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -177,7 +176,7 @@ export function FileBrowser({
 
         {isLoading && (
           <div className="flex flex-col gap-8 w-full items-center mt-12 md:mt-24">
-            <Loader2 className="h-24 w-24 md:h-32 md:w-32 animate-spin text-gray-500" />
+            <BiLoaderAlt className="h-24 w-24 md:h-32 md:w-32 animate-spin text-gray-500" />
             <div className="text-xl md:text-2xl">Loading your files...</div>
           </div>
         )}

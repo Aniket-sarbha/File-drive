@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
-import { FileIcon, StarIcon, TrashIcon, FolderIcon, HomeIcon, Database } from "lucide-react";
+import { FiFile, FiStar, FiTrash, FiFolder, FiHome, FiDatabase } from "react-icons/fi";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -24,7 +24,7 @@ export function SideNav({ onItemClick }: { onItemClick?: () => void }) {
             "bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800": pathname.includes("/dashboard/files"),
           })}
         >
-          <FolderIcon className={clsx("h-4 w-4", {
+          <FiFolder className={clsx("h-4 w-4", {
             "text-blue-600": pathname.includes("/dashboard/files"),
           })} /> 
           <span className="font-medium">All Files</span>
@@ -38,8 +38,8 @@ export function SideNav({ onItemClick }: { onItemClick?: () => void }) {
             "bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800": pathname.includes("/dashboard/favorites"),
           })}
         >
-          <StarIcon className={clsx("h-4 w-4", {
-            "text-amber-500": pathname.includes("/dashboard/favorites"),
+          <FiStar className={clsx("h-4 w-4", {
+            "text-amber-500 fill-amber-500": pathname.includes("/dashboard/favorites"),
           })} /> 
           <span className="font-medium">Favorites</span>
         </Button>
@@ -52,7 +52,7 @@ export function SideNav({ onItemClick }: { onItemClick?: () => void }) {
             "bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800": pathname.includes("/dashboard/trash"),
           })}
         >
-          <TrashIcon className={clsx("h-4 w-4", {
+          <FiTrash className={clsx("h-4 w-4", {
             "text-red-500": pathname.includes("/dashboard/trash"),
           })} /> 
           <span className="font-medium">Trash</span>

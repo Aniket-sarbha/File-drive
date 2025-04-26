@@ -8,12 +8,11 @@ import { internal, api } from "./_generated/api";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 // We'll import the PDF parser in a safe way
 const pdfParseLib = require("pdf-parse/lib/pdf-parse.js");
-// Import mammoth for DOCX parsing
-const mammoth = require("mammoth");
+const docx4js = require("docx4js");
 
 // Initialize Gemini only if API key is available
-const genAI = process.env.GEMINI_API_KEY 
-  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) 
+const genAI = process.env.GEMINI_API_KEY
+  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null;
 
 // Safe wrapper for pdf-parse that avoids initialization issues
@@ -29,15 +28,21 @@ async function safeParsePdf(buffer: Buffer): Promise<{ text: string }> {
 /**
  * Generates a summary using Gemini API
  */
-async function generateGeminiSummary(content: string, fileType: string): Promise<string> {
+async function generateGeminiSummary(
+  content: string,
+  fileType: string
+): Promise<string> {
   if (!genAI) {
     throw new Error("Gemini API key is not configured");
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro-exp-03-25" });
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-pro-exp-03-25",
+      generationConfig: { temperature: 0.2 },
+    });
     // Updated prompt for clearer heading/content separation
-    const prompt = `Please summarize the key points of the following ${fileType} file content. Use clear headings for each section on their own line, followed by bullet points for the details under each heading. Ensure there is good separation between sections for readability:\n\n${content}`;
+    const prompt = `Please summarize the key points of the following ${fileType} file content. Use clear headings for each section on their own line, followed by numeric points for the details under each heading. Ensure there is good separation between sections for readability:\n\n${content}`;
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
@@ -56,9 +61,12 @@ export const summarizeFile = action({
     fileId: v.id("files"),
   },
   handler: async (ctx, args): Promise<string> => {
-    const file: Doc<"files"> & { url: string | null } = await ctx.runQuery(api.files.getFileById, {
-      fileId: args.fileId,
-    });
+    const file: Doc<"files"> & { url: string | null } = await ctx.runQuery(
+      api.files.getFileById,
+      {
+        fileId: args.fileId,
+      }
+    );
 
     if (!file) {
       throw new Error("File not found");
@@ -79,10 +87,6 @@ export const summarizeFile = action({
       textContent = pdfData.text;
     } else if (file.type === "csv") {
       textContent = await response.text();
-    } else if (file.type === "docx") {
-      const arrayBuffer = await response.arrayBuffer();
-      const result = await mammoth.extractRawText({ arrayBuffer });
-      textContent = result.value;
     } else {
       // Image or other types (OCR placeholder)
       textContent = "Image file: " + file.name;
@@ -93,7 +97,9 @@ export const summarizeFile = action({
 
     try {
       if (!genAI) {
-        throw new Error("Gemini API is not configured. Please add GEMINI_API_KEY to your environment variables.");
+        throw new Error(
+          "Gemini API is not configured. Please add GEMINI_API_KEY to your environment variables."
+        );
       }
 
       const summary = await generateGeminiSummary(truncatedContent, file.type);
@@ -106,7 +112,9 @@ export const summarizeFile = action({
       return summary;
     } catch (error) {
       console.error("Error generating summary:", error);
-      throw new Error(`Failed to generate summary: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to generate summary: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   },
 });

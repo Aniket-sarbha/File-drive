@@ -29,17 +29,17 @@ import { useForm } from "react-hook-form";
 import { useCallback, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { 
-  UploadCloud, 
-  File, 
-  Loader2, 
-  ImageIcon, 
-  FileTextIcon, 
-  FileSpreadsheetIcon,
-  X as XIcon,
-  CheckCircle,
-  AlertCircle,
-  Plus
-} from "lucide-react";
+  FiUploadCloud, 
+  FiFile, 
+  FiImage, 
+  FiFileText, 
+  FiX,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiPlus
+} from "react-icons/fi";
+import { BiLoaderAlt } from "react-icons/bi";
+import { BsFiletypeXls } from "react-icons/bs";
 import { Doc, Id } from "../../../../convex/_generated/dataModel";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
@@ -330,16 +330,16 @@ export function UploadButton() {
       const fileExt = selectedFileName.split('.').pop()?.toLowerCase();
       
       if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt || '')) {
-        return <ImageIcon className="h-8 w-8 md:h-10 md:w-10 text-blue-500" />;
+        return <FiImage className="h-8 w-8 md:h-10 md:w-10 text-blue-500" />;
       } else if (fileExt === 'pdf') {
-        return <FileTextIcon className="h-8 w-8 md:h-10 md:w-10 text-red-500" />;
+        return <FiFileText className="h-8 w-8 md:h-10 md:w-10 text-red-500" />;
       } else if (['csv', 'xlsx', 'xls'].includes(fileExt || '')) {
-        return <FileSpreadsheetIcon className="h-8 w-8 md:h-10 md:w-10 text-green-500" />;
+        return <BsFiletypeXls className="h-8 w-8 md:h-10 md:w-10 text-green-500" />;
       } else {
-        return <File className="h-8 w-8 md:h-10 md:w-10 text-gray-500" />;
+        return <FiFile className="h-8 w-8 md:h-10 md:w-10 text-gray-500" />;
       }
     }
-    return <UploadCloud className="h-12 w-12 md:h-16 md:w-16 text-gray-400 mb-2" />;
+    return <FiUploadCloud className="h-12 w-12 md:h-16 md:w-16 text-gray-400 mb-2" />;
   };
 
   return (
@@ -360,7 +360,7 @@ export function UploadButton() {
     >
       <DialogTrigger asChild>
         <Button className="flex gap-1 items-center whitespace-nowrap">
-          <Plus className="h-4 w-4" /> 
+          <FiPlus className="h-4 w-4" /> 
           <span className="hidden sm:inline">Upload File</span>
           <span className="sm:hidden">Upload</span>
         </Button>
@@ -418,7 +418,7 @@ export function UploadButton() {
                               className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1 shadow-sm"
                               onClick={clearSelectedFile}
                             >
-                              <XIcon className="h-4 w-4 text-white" />
+                              <FiX className="h-4 w-4 text-white" />
                             </button>
                           </div>
                         ) : (
@@ -445,14 +445,14 @@ export function UploadButton() {
                               className="ml-2 bg-white rounded-full p-1 border border-gray-300"
                               onClick={clearSelectedFile}
                             >
-                              <XIcon className="h-3 w-3 md:h-4 md:w-4 text-gray-500" />
+                              <FiX className="h-3 w-3 md:h-4 md:w-4 text-gray-500" />
                             </button>
                           </div>
                         )}
 
                         {(fileError || (attemptedSubmit && !selectedFileName)) && (
                           <span className="text-red-500 text-xs mt-2 flex items-center">
-                            <AlertCircle className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                            <FiAlertCircle className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                             {fileError || "Please select a file"}
                           </span>
                         )}
@@ -489,14 +489,14 @@ export function UploadButton() {
 
               {uploadStatus === 'success' && (
                 <div className="flex items-center text-green-600 text-xs md:text-sm">
-                  <CheckCircle className="h-4 w-4 md:h-5 md:w-5 mr-2" />
+                  <FiCheckCircle className="h-4 w-4 md:h-5 md:w-5 mr-2" />
                   Upload complete!
                 </div>
               )}
 
               {uploadStatus === 'error' && (
                 <div className="flex items-center text-red-600 text-xs md:text-sm">
-                  <AlertCircle className="h-4 w-4 md:h-5 md:w-5 mr-2" />
+                  <FiAlertCircle className="h-4 w-4 md:h-5 md:w-5 mr-2" />
                   Upload failed. Please try again.
                 </div>
               )}
@@ -520,7 +520,7 @@ export function UploadButton() {
                 >
                   {uploadStatus === 'uploading' ? (
                     <>
-                      <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" />
+                      <BiLoaderAlt className="h-3 w-3 md:h-4 md:w-4 animate-spin" />
                       Uploading...
                     </>
                   ) : 'Upload'}

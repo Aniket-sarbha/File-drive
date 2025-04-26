@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "./dropdown-menu";
-import { LogOut, User } from "lucide-react";
+import { FiLogOut, FiUser } from "react-icons/fi";
 
 export function CustomUserButton() {
   const { signOut } = useClerk();
@@ -53,7 +53,7 @@ export function CustomUserButton() {
           onClick={() => router.push("/user-profile")}
           className="cursor-pointer"
         >
-          <User className="mr-2 h-4 w-4" />
+          <FiUser className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -61,7 +61,7 @@ export function CustomUserButton() {
           onClick={handleSignOut}
           className="text-red-600 cursor-pointer"
         >
-          <LogOut className="mr-2 h-4 w-4" />
+          <FiLogOut className="mr-2 h-4 w-4" />
           <span>Sign out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

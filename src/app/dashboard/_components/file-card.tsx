@@ -10,21 +10,20 @@ import { formatRelative } from "date-fns";
 
 import { Doc } from "../../../../convex/_generated/dataModel";
 import { 
-  FileTextIcon, 
-  GanttChartIcon, 
-  ImageIcon,
-  FileIcon,
-  FileSpreadsheetIcon,
-  FileType2Icon, 
-  FileCodeIcon,
-  FileDigitIcon, 
-  BookIcon,
-  PresentationIcon,
-  ClipboardIcon,
-  BadgeCheckIcon,
-  StarIcon,
-  StarHalfIcon
-} from "lucide-react";
+  FiFileText, 
+  FiBarChart2, 
+  FiImage,
+  FiFile,
+  FiFileText as FiFileSpreadsheet,
+  FiType as FiFileType2,
+  FiCode as FiFileCode,
+  FiHash as FiFileDigit, 
+  FiBook,
+  FiMonitor as FiPresentation,
+  FiClipboard,
+  FiCheckCircle as FiBadgeCheck,
+  FiStar
+} from "react-icons/fi";
 import { ReactNode, useState, useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -36,7 +35,7 @@ import { cn } from "@/lib/utils";
 export function FileCard({
   file,
 }: {
-  file: Doc<"files"> & { isFavorited: boolean; url: string | null };
+  file: Doc<"files"> & { isFavorited: boolean; url: string | null; type: "image" | "csv" | "pdf" | "docx" | "doc" };
 }) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -52,22 +51,22 @@ export function FileCard({
   // Enhanced type icons with colors and more file types
   const typeIcons = useMemo(() => {
     return {
-      image: <ImageIcon className="text-blue-500" />,
-      pdf: <FileTextIcon className="text-red-500" />,
-      csv: <FileSpreadsheetIcon className="text-green-500" />,
-      docx: <FileType2Icon className="text-blue-600" />,
-      doc: <FileType2Icon className="text-blue-600" />,
-      xls: <FileSpreadsheetIcon className="text-green-600" />,
-      xlsx: <FileSpreadsheetIcon className="text-green-600" />,
-      ppt: <PresentationIcon className="text-orange-600" />,
-      pptx: <PresentationIcon className="text-orange-600" />,
-      txt: <FileTextIcon className="text-gray-600" />,
-      html: <FileCodeIcon className="text-purple-500" />,
-      css: <FileCodeIcon className="text-blue-400" />,
-      js: <FileCodeIcon className="text-yellow-500" />,
-      json: <FileCodeIcon className="text-gray-600" />,
-      zip: <FileDigitIcon className="text-orange-500" />,
-      default: <FileIcon className="text-gray-500" />,
+      image: <FiImage className="text-blue-500" />,
+      pdf: <FiFileText className="text-red-500" />,
+      csv: <FiFileSpreadsheet className="text-green-500" />,
+      docx: <FiFileType2 className="text-blue-600" />,
+      doc: <FiFileType2 className="text-blue-600" />,
+      xls: <FiFileSpreadsheet className="text-green-600" />,
+      xlsx: <FiFileSpreadsheet className="text-green-600" />,
+      ppt: <FiPresentation className="text-orange-600" />,
+      pptx: <FiPresentation className="text-orange-600" />,
+      txt: <FiFileText className="text-gray-600" />,
+      html: <FiFileCode className="text-purple-500" />,
+      css: <FiFileCode className="text-blue-400" />,
+      js: <FiFileCode className="text-yellow-500" />,
+      json: <FiFileCode className="text-gray-600" />,
+      zip: <FiFileDigit className="text-orange-500" />,
+      default: <FiFile className="text-gray-500" />,
     };
   }, []);
 
@@ -76,6 +75,7 @@ export function FileCard({
     if (file.type === 'image') return typeIcons.image;
     if (file.type === 'pdf') return typeIcons.pdf;
     if (file.type === 'csv') return typeIcons.csv;
+    if (file.type === 'docx') return typeIcons.docx;
     
     // Check more specific file extensions
     if (fileExtension in typeIcons) return typeIcons[fileExtension as keyof typeof typeIcons];
@@ -88,6 +88,7 @@ export function FileCard({
       case 'image': return 'bg-blue-50';
       case 'pdf': return 'bg-red-50';
       case 'csv': return 'bg-green-50';
+      case 'docx': return 'bg-blue-50';
       default: return 'bg-gray-50';
     }
   };
@@ -108,7 +109,7 @@ export function FileCard({
           <div className="absolute top-2 right-2">
             {file.isFavorited && (
               <span className="absolute -left-7 top-0">
-                <StarIcon className="w-4 h-4 text-amber-500" />
+                <FiStar className="w-4 h-4 text-amber-500 fill-current" />
               </span>
             )}
             <FileCardActions isFavorited={file.isFavorited} file={file} />
@@ -142,7 +143,7 @@ export function FileCard({
           {file.type === "pdf" && (
             <div className="flex flex-col items-center justify-center w-full h-full">
               <div className="relative bg-red-50 p-3 rounded-lg mb-2 transition-transform duration-300 group-hover:scale-105">
-                <FileTextIcon className="w-16 h-16 md:w-20 md:h-20 text-red-500" />
+                <FiFileText className="w-16 h-16 md:w-20 md:h-20 text-red-500" />
                 <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-100 rounded-md flex items-center justify-center">
                   <span className="text-xs font-medium text-red-600">PDF</span>
                 </div>
@@ -154,21 +155,20 @@ export function FileCard({
               </div>
             </div>
           )}
-
-          {/* Word Document files - show icon and a document preview style */}
+            
+            {/* DOCX files - show icon and a document preview style */}
           {file.type === "docx" && (
             <div className="flex flex-col items-center justify-center w-full h-full">
-              <div className="relative bg-blue-50 p-3 rounded-lg mb-2 transition-transform duration-300 group-hover:scale-105">
-                <FileType2Icon className="w-16 h-16 md:w-20 md:h-20 text-blue-600" />
-                <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center">
-                  <span className="text-xs font-medium text-blue-600">DOCX</span>
+              <div className="relative bg-red-50 p-3 rounded-lg mb-2 transition-transform duration-300 group-hover:scale-105">
+                <FiFileType2 className="w-16 h-16 md:w-20 md:h-20 text-blue-500" />
+                <div className="absolute -top-1 -right-1 w-6 h-6 bg-red-100 rounded-md flex items-center justify-center">
+                  <span className="text-xs font-medium text-blue-600">Docx</span>
                 </div>
               </div>
               <div className="space-y-1 w-2/3">
-                <div className="h-1 bg-blue-100 rounded w-full"></div>
-                <div className="h-1 bg-blue-100 rounded w-5/6"></div>
-                <div className="h-1 bg-blue-100 rounded w-4/5"></div>
-                <div className="h-1 bg-blue-100 rounded w-3/4"></div>
+                <div className="h-1 bg-gray-200 rounded w-full"></div>
+                <div className="h-1 bg-gray-200 rounded w-4/5"></div>
+                <div className="h-1 bg-gray-200 rounded w-3/5"></div>
               </div>
             </div>
           )}
@@ -177,7 +177,7 @@ export function FileCard({
           {file.type === "csv" && (
             <div className="flex flex-col items-center justify-center w-full h-full">
               <div className="relative bg-green-50 p-3 rounded-lg mb-2 transition-transform duration-300 group-hover:scale-105">
-                <GanttChartIcon className="w-16 h-16 md:w-20 md:h-20 text-green-500" />
+                <FiBarChart2 className="w-16 h-16 md:w-20 md:h-20 text-green-500" />
                 <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-100 rounded-md flex items-center justify-center">
                   <span className="text-xs font-medium text-green-600">CSV</span>
                 </div>

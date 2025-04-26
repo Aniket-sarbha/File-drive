@@ -1,19 +1,21 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Doc } from "../../../../../convex/_generated/dataModel";
 import Image from "next/image";
 import { 
-  FileTextIcon, 
-  GanttChartIcon, 
-  ImageIcon,
-  FileIcon,
-  FileSpreadsheetIcon,
-  DownloadIcon,
-  XIcon,
-  ZoomInIcon, 
-  ZoomOutIcon,
-  Loader2
-} from "lucide-react";
+  FiFileText, 
+  FiBarChart2 as FiGanttChart, 
+  FiImage,
+  FiFile,
+  FiFileText as FiFileSpreadsheet,
+  FiDownload,
+  FiX,
+  FiZoomIn,
+  FiZoomOut,
+  FiLoader
+} from "react-icons/fi";
+import { BiLoaderAlt } from "react-icons/bi";
+import { FaRegFileWord } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +44,7 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
       case 'image': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'pdf': return 'bg-red-100 text-red-800 border-red-200';
       case 'csv': return 'bg-green-100 text-green-800 border-green-200';
+      case 'docx': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -58,10 +61,11 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
         <DialogHeader className="px-3 py-2 sm:px-4 sm:py-3 flex flex-row items-center justify-between gap-4 border-b">
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="flex shrink-0">
-              {file.type === "image" && <ImageIcon className="h-5 w-5 text-blue-500" />}
-              {file.type === "pdf" && <FileTextIcon className="h-5 w-5 text-red-500" />}
-              {file.type === "csv" && <FileSpreadsheetIcon className="h-5 w-5 text-green-500" />}
-              {!["image", "pdf", "csv"].includes(file.type) && <FileIcon className="h-5 w-5 text-gray-500" />}
+              {file.type === "image" && <FiImage className="h-5 w-5 text-blue-500" />}
+              {file.type === "pdf" && <FiFileText className="h-5 w-5 text-red-500" />}
+              {file.type === "csv" && <FiFileSpreadsheet className="h-5 w-5 text-green-500" />}
+              {file.type === "docx" && <FaRegFileWord className="h-5 w-5 text-indigo-500" />}
+              {!["image", "pdf", "csv", "docx"].includes(file.type) && <FiFile className="h-5 w-5 text-gray-500" />}
             </div>
             <DialogTitle className="text-base sm:text-lg font-medium truncate">
               {file.name}
@@ -69,6 +73,9 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
             <div className={cn("h-5 px-2 text-xs font-normal border rounded-md inline-flex items-center", getTypeBadgeColor())}>
               {fileExtension}
             </div>
+            <DialogDescription className="sr-only">
+              Preview of {file.name}, a {file.type} file
+            </DialogDescription>
           </div>
           
           <div className="flex items-center gap-2">
@@ -81,7 +88,7 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
                   onClick={zoomOut}
                   disabled={zoomLevel <= 0.5}
                 >
-                  <ZoomOutIcon className="h-4 w-4" />
+                  <FiZoomOut className="h-4 w-4" />
                 </Button>
                 <span className="text-xs w-12 text-center">
                   {Math.round(zoomLevel * 100)}%
@@ -93,7 +100,7 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
                   onClick={zoomIn}
                   disabled={zoomLevel >= 3}
                 >
-                  <ZoomInIcon className="h-4 w-4" />
+                  <FiZoomIn className="h-4 w-4" />
                 </Button>
               </>
             )}
@@ -105,7 +112,7 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
                 rel="noopener noreferrer"
               >
                 <Button variant="outline" size="sm" className="h-7 gap-1">
-                  <DownloadIcon className="h-3.5 w-3.5" />
+                  <FiDownload className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Download</span>
                 </Button>
               </a>
@@ -113,10 +120,10 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
           </div>
         </DialogHeader>
         
-        <div className="flex justify-center items-center h-full p-2 sm:p-4 max-h-[calc(90vh-100px)] overflow-auto bg-gray-50 rounded-b-lg">
+        <div className="flex justify-center items-center h-full p-2 sm:p-4 max-h-[calc(90vh-100px)] overflow-hidden bg-gray-50 rounded-b-lg">
           {/* Image preview with zoom */}
           {file.type === "image" && file.url && (
-            <div className="relative w-full h-full flex justify-center select-none">
+            <div className="relative w-full h-full flex justify-center select-none overflow-hidden">
               <div style={{ transform: `scale(${zoomLevel})`, transition: 'transform 0.2s ease-in-out' }} className="origin-center">
                 <Image
                   src={file.url}
@@ -131,7 +138,7 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80">
                   <div className="flex flex-col items-center gap-2">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <BiLoaderAlt className="h-8 w-8 animate-spin text-primary" />
                     <span className="text-sm text-gray-500">Loading image...</span>
                   </div>
                 </div>
@@ -141,17 +148,18 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
           
           {/* PDF preview with enhanced styling */}
           {file.type === "pdf" && file.url && (
-            <div className="relative w-full h-full min-h-[500px]">
+            <div className="relative w-full h-full min-h-[500px] overflow-hidden">
               <iframe 
                 src={`${file.url}#toolbar=0&navpanes=0`} 
                 className="w-full h-full min-h-[500px] border rounded shadow-sm"
                 title={file.name}
                 onLoad={() => setIsLoading(false)}
+                style={{ overflow: 'hidden' }}
               />
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80">
                   <div className="flex flex-col items-center gap-2">
-                    <Loader2 className="h-8 w-8 animate-spin text-red-500" />
+                    <BiLoaderAlt className="h-8 w-8 animate-spin text-red-500" />
                     <span className="text-sm text-gray-500">Loading PDF...</span>
                   </div>
                 </div>
@@ -161,17 +169,18 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
           
           {/* CSV preview with enhanced styling */}
           {file.type === "csv" && file.url && (
-            <div className="relative w-full h-full min-h-[500px]">
+            <div className="relative w-full h-full min-h-[500px] overflow-hidden">
               <iframe
                 src={file.url}
                 className="w-full h-full min-h-[500px] border rounded shadow-sm"
                 title={file.name}
                 onLoad={() => setIsLoading(false)}
+                style={{ overflow: 'hidden' }}
               />
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80">
                   <div className="flex flex-col items-center gap-2">
-                    <Loader2 className="h-8 w-8 animate-spin text-green-500" />
+                    <BiLoaderAlt className="h-8 w-8 animate-spin text-green-500" />
                     <span className="text-sm text-gray-500">Loading CSV data...</span>
                   </div>
                 </div>
@@ -179,26 +188,55 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
             </div>
           )}
           
+          {/* DOCX preview */}
+          {file.type === "docx" && file.url && (
+            <div className="relative w-full h-full min-h-[500px] overflow-hidden">
+              <iframe
+                src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(file.url)}`}
+                className="w-full h-full min-h-[500px] border rounded shadow-sm"
+                title={file.name}
+                onLoad={() => setIsLoading(false)}
+                frameBorder="0"
+                style={{ overflow: 'hidden' }}
+              />
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80">
+                  <div className="flex flex-col items-center gap-2">
+                    <BiLoaderAlt className="h-8 w-8 animate-spin text-indigo-500" />
+                    <span className="text-sm text-gray-500">Loading document...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          
           {/* Fallback for unsupported file types or when no URL is available */}
-          {(!file.url || !["image", "pdf", "csv"].includes(file.type)) && (
-            <div className="flex flex-col items-center justify-center p-10 text-center">
+          {(!file.url || !["image", "pdf", "csv", "docx"].includes(file.type)) && (
+            <div className="flex flex-col items-center justify-center p-10 text-center overflow-hidden">
               {file.type === "pdf" ? (
                 <div className="relative bg-red-50 p-6 rounded-lg mb-4">
-                  <FileTextIcon className="w-20 h-20 text-red-500" />
+                  <FiFileText className="w-20 h-20 text-red-500" />
                   <div className="absolute top-2 right-2 px-2 py-1 bg-red-100 rounded text-xs text-red-800 font-medium">
                     PDF
                   </div>
                 </div>
               ) : file.type === "csv" ? (
                 <div className="relative bg-green-50 p-6 rounded-lg mb-4">
-                  <GanttChartIcon className="w-20 h-20 text-green-500" />
+                  <FiGanttChart className="w-20 h-20 text-green-500" />
                   <div className="absolute top-2 right-2 px-2 py-1 bg-green-100 rounded text-xs text-green-800 font-medium">
                     CSV
                   </div>
                 </div>
+              ) : file.type === "docx" ? (
+                <div className="relative bg-indigo-50 p-6 rounded-lg mb-4">
+                  <FaRegFileWord className="w-20 h-20 text-indigo-500" />
+                  <div className="absolute top-2 right-2 px-2 py-1 bg-indigo-100 rounded text-xs text-indigo-800 font-medium">
+                    DOCX
+                  </div>
+                </div>
               ) : (
                 <div className="w-24 h-24 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500 mb-4">
-                  <FileIcon className="w-12 h-12" />
+                  <FiFile className="w-12 h-12" />
                 </div>
               )}
               <h3 className="text-lg font-medium text-gray-800 mb-2">{file.name}</h3>
@@ -212,7 +250,7 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
                 >
-                  <DownloadIcon className="w-4 h-4" />
+                  <FiDownload className="w-4 h-4" />
                   Download to view
                 </a>
               )}

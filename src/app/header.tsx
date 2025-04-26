@@ -8,7 +8,7 @@ import {
   SignedOut,
   useSession,
 } from "@clerk/nextjs";
-import { Menu } from "lucide-react";
+import { FiMenu } from "react-icons/fi";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -28,7 +28,7 @@ export function Header() {
         {/* Mobile menu button */}
         <div className="md:hidden">
           <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            <Menu className="h-6 w-6" />
+            <FiMenu className="h-6 w-6" />
           </Button>
         </div>
 

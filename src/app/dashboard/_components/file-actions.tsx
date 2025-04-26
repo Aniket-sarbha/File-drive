@@ -7,17 +7,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  FileIcon,
-  MoreVertical,
-  StarHalf,
-  StarIcon,
-  TrashIcon,
-  UndoIcon,
-  FileTextIcon,
-  Brain,
-  Loader2,
-  EyeIcon,
-} from "lucide-react";
+  FiFile,
+  FiMoreVertical,
+  FiStar as FiStarHalf,
+  FiStar,
+  FiTrash,
+  FiRotateCcw as FiUndo,
+  FiFileText,
+  FiEye,
+  FiRefreshCw,
+} from "react-icons/fi";
+import { BiLoaderAlt, BiBrain } from "react-icons/bi";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,8 +47,12 @@ export function FileCardActions({
   const restoreFile = useMutation(api.files.restoreFile);
   const toggleFavorite = useMutation(api.files.toggleFavorite);
   const summarizeFile = useAction(api.summarize.summarizeFile);
+  const convertFile = useAction(api.convert.convertFile);
   const { toast } = useToast();
   const me = useQuery(api.users.getMe);
+
+  // For file conversion
+  const [conversionLoading, setConversionLoading] = useState(false);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
@@ -78,6 +82,39 @@ export function FileCardActions({
     } finally {
       setSummaryLoading(false);
       // No need to set isSummaryOpen here since we already opened it
+    }
+  };
+
+  // Function to handle file conversion
+  const handleConvert = async (targetFormat: "pdf" | "docx") => {
+    try {
+      setConversionLoading(true);
+      
+      const result = await convertFile({
+        fileId: file._id,
+        targetFormat,
+      });
+      
+      if (result && result.success) {
+        toast({
+          title: "File conversion successful",
+          description: `Converted ${file.type} to ${targetFormat}. The new file is saved alongside the original.`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Conversion failed",
+          description: result && result.message ? result.message : "There was an error converting your file",
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Conversion failed",
+        description: "There was an error converting your file",
+      });
+    } finally {
+      setConversionLoading(false);
     }
   };
 
@@ -130,7 +167,7 @@ export function FileCardActions({
                 <div className="relative w-16 h-16">
                   <div className="absolute top-0 left-0 w-full h-full rounded-full border-4 border-gray-200"></div>
                   <div className="absolute top-0 left-0 w-full h-full rounded-full border-4 border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
-                  <Brain className="w-8 h-8 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-blue-500" />
+                  <BiBrain className="w-8 h-8 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-blue-500" />
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-medium">Summarising...</div>
@@ -161,7 +198,7 @@ export function FileCardActions({
 
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <MoreVertical />
+          <FiMoreVertical />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           {/* Preview option - available for all file types */}
@@ -169,7 +206,7 @@ export function FileCardActions({
             onClick={() => setIsPreviewOpen(true)}
             className="flex gap-1 items-center cursor-pointer"
           >
-            <EyeIcon className="w-4 h-4" /> Preview
+            <FiEye className="w-4 h-4" /> Preview
           </DropdownMenuItem>
           
           <DropdownMenuItem
@@ -179,11 +216,52 @@ export function FileCardActions({
             }}
             className="flex gap-1 items-center cursor-pointer"
           >
-            <FileIcon className="w-4 h-4" /> Download
+            <FiFile className="w-4 h-4" /> Download
           </DropdownMenuItem>
 
+          {/* Conversion options */}
+          {file.type === "pdf" && (
+            <DropdownMenuItem
+              onClick={() => handleConvert("docx")}
+              disabled={conversionLoading}
+              className="flex gap-2 items-center cursor-pointer"
+            >
+              {conversionLoading ? (
+                <>
+                  <BiLoaderAlt className="w-4 h-4 animate-spin text-blue-500" />
+                  <span className="text-blue-500">Converting...</span>
+                </>
+              ) : (
+                <>
+                  <FiRefreshCw className="w-4 h-4" /> 
+                  <span>Convert to DOCX</span>
+                </>
+              )}
+            </DropdownMenuItem>
+          )}
+          
+          {file.type === "docx" && (
+            <DropdownMenuItem
+              onClick={() => handleConvert("pdf")}
+              disabled={conversionLoading}
+              className="flex gap-2 items-center cursor-pointer"
+            >
+              {conversionLoading ? (
+                <>
+                  <BiLoaderAlt className="w-4 h-4 animate-spin text-blue-500" />
+                  <span className="text-blue-500">Converting...</span>
+                </>
+              ) : (
+                <>
+                  <FiRefreshCw className="w-4 h-4" /> 
+                  <span>Convert to PDF</span>
+                </>
+              )}
+            </DropdownMenuItem>
+          )}
+
           {/* Summarize option */}
-          {(file.type === "pdf" || file.type === "csv" || file.type === "docx") && (
+          {(file.type === "pdf" || file.type === "csv") && (
             <DropdownMenuItem
               onClick={handleSummarize}
               disabled={summaryLoading}
@@ -191,12 +269,12 @@ export function FileCardActions({
             >
               {summaryLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                  <BiLoaderAlt className="w-4 h-4 animate-spin text-blue-500" />
                   <span className="text-blue-500">Summarising...</span>
                 </>
               ) : (
                 <>
-                  <Brain className="w-4 h-4" /> 
+                  <BiBrain className="w-4 h-4" /> 
                   <span>Summarize with Gemini</span>
                 </>
               )}
@@ -209,7 +287,7 @@ export function FileCardActions({
               onClick={() => setIsSummaryOpen(true)}
               className="flex gap-1 items-center cursor-pointer"
             >
-              <FileTextIcon className="w-4 h-4" /> View Summary
+              <FiFileText className="w-4 h-4" /> View Summary
             </DropdownMenuItem>
           )}
 
@@ -223,11 +301,11 @@ export function FileCardActions({
           >
             {isFavorited ? (
               <div className="flex gap-1 items-center">
-                <StarIcon className="w-4 h-4" /> Unfavorite
+                <FiStar className="w-4 h-4 fill-amber-400 text-amber-400" /> Unfavorite
               </div>
             ) : (
               <div className="flex gap-1 items-center">
-                <StarHalf className="w-4 h-4" /> Favorite
+                <FiStarHalf className="w-4 h-4" /> Favorite
               </div>
             )}
           </DropdownMenuItem>
@@ -257,11 +335,11 @@ export function FileCardActions({
             >
               {file.shouldDelete ? (
                 <div className="flex gap-1 text-green-600 items-center cursor-pointer">
-                  <UndoIcon className="w-4 h-4" /> Restore
+                  <FiUndo className="w-4 h-4" /> Restore
                 </div>
               ) : (
                 <div className="flex gap-1 text-red-600 items-center cursor-pointer">
-                  <TrashIcon className="w-4 h-4" /> Delete
+                  <FiTrash className="w-4 h-4" /> Delete
                 </div>
               )}
             </DropdownMenuItem>

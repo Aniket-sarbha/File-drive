@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, SearchIcon } from "lucide-react";
+import { BiLoaderAlt } from "react-icons/bi";
+import { FiSearch } from "react-icons/fi";
 import { Dispatch, SetStateAction } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -63,9 +64,9 @@ export function SearchBar({
             className="flex gap-1 whitespace-nowrap"
           >
             {form.formState.isSubmitting && (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <BiLoaderAlt className="h-4 w-4 animate-spin" />
             )}
-            <SearchIcon className="h-4 w-4" />
+            <FiSearch className="h-4 w-4" />
             <span className="hidden sm:inline">Search</span>
           </Button>
         </form>

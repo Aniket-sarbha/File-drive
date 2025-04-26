@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useToast } from "@/components/ui/use-toast";
-import { Menu } from "lucide-react";
+import { FiMenu } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardLayout({
@@ -50,7 +50,7 @@ export default function DashboardLayout({
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="flex items-center gap-2"
         >
-          <Menu className="h-5 w-5" />
+          <FiMenu className="h-5 w-5" />
           Menu
         </Button>
       </div>
