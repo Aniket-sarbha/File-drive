@@ -22,7 +22,9 @@ import {
   FiMonitor as FiPresentation,
   FiClipboard,
   FiCheckCircle as FiBadgeCheck,
-  FiStar
+  FiStar,
+  FiVideo,
+  FiMusic
 } from "react-icons/fi";
 import { ReactNode, useState, useMemo } from "react";
 import { useQuery } from "convex/react";
@@ -35,7 +37,7 @@ import { cn } from "@/lib/utils";
 export function FileCard({
   file,
 }: {
-  file: Doc<"files"> & { isFavorited: boolean; url: string | null; type: "image" | "csv" | "pdf" | "docx" | "doc" };
+  file: Doc<"files"> & { isFavorited: boolean; url: string | null; type: "image" | "csv" | "pdf" | "docx" | "doc" | "video" | "audio" };
 }) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -66,6 +68,16 @@ export function FileCard({
       js: <FiFileCode className="text-yellow-500" />,
       json: <FiFileCode className="text-gray-600" />,
       zip: <FiFileDigit className="text-orange-500" />,
+      mp4: <FiVideo className="text-purple-500" />,
+      webm: <FiVideo className="text-purple-500" />,
+      ogg: <FiVideo className="text-purple-500" />,
+      mov: <FiVideo className="text-purple-500" />,
+      mkv: <FiVideo className="text-purple-500" />,
+      mp3: <FiMusic className="text-yellow-500" />,
+      wav: <FiMusic className="text-yellow-500" />,
+      aac: <FiMusic className="text-yellow-500" />,
+      video: <FiVideo className="text-purple-500" />,
+      audio: <FiMusic className="text-yellow-500" />,
       default: <FiFile className="text-gray-500" />,
     };
   }, []);
@@ -76,6 +88,8 @@ export function FileCard({
     if (file.type === 'pdf') return typeIcons.pdf;
     if (file.type === 'csv') return typeIcons.csv;
     if (file.type === 'docx') return typeIcons.docx;
+    if (file.type === 'video') return typeIcons.video;
+    if (file.type === 'audio') return typeIcons.audio;
     
     // Check more specific file extensions
     if (fileExtension in typeIcons) return typeIcons[fileExtension as keyof typeof typeIcons];
@@ -89,6 +103,8 @@ export function FileCard({
       case 'pdf': return 'bg-red-50';
       case 'csv': return 'bg-green-50';
       case 'docx': return 'bg-blue-50';
+      case 'video': return 'bg-purple-50';
+      case 'audio': return 'bg-yellow-50';
       default: return 'bg-gray-50';
     }
   };
@@ -192,6 +208,59 @@ export function FileCard({
                 <div className="h-2 bg-gray-100 rounded"></div>
                 <div className="h-2 bg-gray-100 rounded"></div>
                 <div className="h-2 bg-gray-100 rounded"></div>
+              </div>
+            </div>
+          )}
+
+          {/* Video files - show icon and a video preview style */}
+          {file.type === "video" && (
+            <div className="flex flex-col items-center justify-center w-full h-full">
+              <div className="relative bg-purple-50 p-3 rounded-lg mb-2 transition-transform duration-300 group-hover:scale-105">
+                <FiVideo className="w-16 h-16 md:w-20 md:h-20 text-purple-500" />
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center">
+                  <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-purple-500 border-b-[6px] border-b-transparent ml-1"></div>
+                </div>
+                <div className="absolute -top-1 -right-1 w-10 h-6 bg-purple-100 rounded-md flex items-center justify-center">
+                  <span className="text-xs font-medium text-purple-600">Video</span>
+                </div>
+              </div>
+              <div className="w-2/3 bg-gray-100 h-2 rounded-full overflow-hidden">
+                <div className="bg-purple-400 h-full w-1/3"></div>
+              </div>
+              <div className="flex justify-between w-2/3 mt-2">
+                <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-gray-400"></div>
+                </div>
+                <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-gray-400"></div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Audio files - show icon and an audio preview style */}
+          {file.type === "audio" && (
+            <div className="flex flex-col items-center justify-center w-full h-full">
+              <div className="relative bg-yellow-50 p-3 rounded-lg mb-2 transition-transform duration-300 group-hover:scale-105">
+                <FiMusic className="w-16 h-16 md:w-20 md:h-20 text-yellow-500" />
+                <div className="absolute -top-1 -right-1 w-10 h-6 bg-yellow-100 rounded-md flex items-center justify-center">
+                  <span className="text-xs font-medium text-yellow-600">Audio</span>
+                </div>
+              </div>
+              {/* Audio waveform visualization */}
+              <div className="w-2/3 h-10 flex items-center justify-center gap-1">
+                <div className="w-1 h-3 bg-yellow-200 rounded-full"></div>
+                <div className="w-1 h-5 bg-yellow-300 rounded-full"></div>
+                <div className="w-1 h-7 bg-yellow-400 rounded-full"></div>
+                <div className="w-1 h-10 bg-yellow-500 rounded-full"></div>
+                <div className="w-1 h-6 bg-yellow-400 rounded-full"></div>
+                <div className="w-1 h-8 bg-yellow-500 rounded-full"></div>
+                <div className="w-1 h-4 bg-yellow-300 rounded-full"></div>
+                <div className="w-1 h-7 bg-yellow-400 rounded-full"></div>
+                <div className="w-1 h-9 bg-yellow-500 rounded-full"></div>
+                <div className="w-1 h-3 bg-yellow-200 rounded-full"></div>
+                <div className="w-1 h-5 bg-yellow-300 rounded-full"></div>
+                <div className="w-1 h-8 bg-yellow-400 rounded-full"></div>
               </div>
             </div>
           )}

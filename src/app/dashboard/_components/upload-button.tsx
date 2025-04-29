@@ -36,7 +36,9 @@ import {
   FiX,
   FiCheckCircle,
   FiAlertCircle,
-  FiPlus
+  FiPlus,
+  FiMusic,
+  FiVideo
 } from "react-icons/fi";
 import { BiLoaderAlt } from "react-icons/bi";
 import { BsFiletypeXls } from "react-icons/bs";
@@ -53,6 +55,18 @@ const ACCEPTED_FILE_TYPES = {
   "application/pdf": "pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
   "text/csv": "csv",
+  // Video formats
+  "video/mp4": "video",
+  "video/webm": "video",
+  "video/ogg": "video",
+  "video/x-matroska": "video", // mkv
+  "video/quicktime": "video", // mov
+  // Audio formats
+  "audio/mpeg": "audio", // mp3
+  "audio/ogg": "audio", 
+  "audio/wav": "audio",
+  "audio/webm": "audio",
+  "audio/aac": "audio"
 } as const;
 
 const MAX_FILE_SIZE = 1024 * 1024 * 20; // 20MB
@@ -69,7 +83,7 @@ const formSchema = z.object({
     .refine(
       (files) => 
         files[0] && Object.keys(ACCEPTED_FILE_TYPES).includes(files[0].type),
-      `Only PNG, JPEG, JPG, GIF, PDF, DOCX, and CSV files are accepted`
+      `Only PNG, JPEG, JPG, GIF, PDF, DOCX, CSV, video and audio files are accepted`
     ),
 });
 
@@ -117,7 +131,7 @@ export function UploadButton() {
     if (!file) return "Please select a file";
     if (file.size > MAX_FILE_SIZE) return "File size should be less than 20MB";
     if (!Object.keys(ACCEPTED_FILE_TYPES).includes(file.type)) {
-      return "Only PNG, JPEG, JPG, GIF, PDF, DOCX, and CSV files are accepted";
+      return "Only PNG, JPEG, JPG, GIF, PDF, DOCX, CSV, video and audio files are accepted";
     }
     return null;
   };
@@ -147,7 +161,7 @@ export function UploadButton() {
       // Update the form
       form.setValue('file', fileList, { shouldValidate: true });
       
-      // If it's an image, show a preview
+      // Show previews for supported file types
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -222,6 +236,44 @@ export function UploadButton() {
     if (fileInput) {
       fileInput.value = '';
     }
+  };
+
+  // Media preview components
+  const VideoPreview = ({ file }: { file: File }) => {
+    const url = URL.createObjectURL(file);
+    return (
+      <div className="relative w-full max-w-[250px]">
+        <video
+          controls
+          className="rounded-md max-h-[200px] w-full"
+          src={url}
+          onLoadedMetadata={() => {
+            // Clean up object URL when video is loaded
+            return () => URL.revokeObjectURL(url);
+          }}
+        />
+      </div>
+    );
+  };
+
+  const AudioPreview = ({ file }: { file: File }) => {
+    const url = URL.createObjectURL(file);
+    return (
+      <div className="w-full max-w-[250px]">
+        <div className="flex items-center justify-center mb-2">
+          <FiMusic className="h-12 w-12 text-yellow-500" />
+        </div>
+        <audio
+          controls
+          className="w-full"
+          src={url}
+          onLoadedMetadata={() => {
+            // Clean up object URL when audio is loaded
+            return () => URL.revokeObjectURL(url);
+          }}
+        />
+      </div>
+    );
   };
 
   // Update the onSubmit function to handle validation explicitly
@@ -335,6 +387,10 @@ export function UploadButton() {
         return <FiFileText className="h-8 w-8 md:h-10 md:w-10 text-red-500" />;
       } else if (['csv', 'xlsx', 'xls'].includes(fileExt || '')) {
         return <BsFiletypeXls className="h-8 w-8 md:h-10 md:w-10 text-green-500" />;
+      } else if (['mp4', 'webm', 'ogg', 'mkv', 'mov'].includes(fileExt || '')) {
+        return <FiVideo className="h-8 w-8 md:h-10 md:w-10 text-purple-500" />;
+      } else if (['mp3', 'wav', 'aac'].includes(fileExt || '')) {
+        return <FiMusic className="h-8 w-8 md:h-10 md:w-10 text-yellow-500" />;
       } else {
         return <FiFile className="h-8 w-8 md:h-10 md:w-10 text-gray-500" />;
       }
@@ -402,7 +458,7 @@ export function UploadButton() {
                           className="sr-only"
                           {...fileRef}
                           onChange={handleFileInputChange}
-                          accept=".png,.jpg,.jpeg,.gif,.pdf,.docx,.csv"
+                          accept=".png,.jpg,.jpeg,.gif,.pdf,.docx,.csv,.mp4,.webm,.ogg,.mkv,.mov,.mp3,.wav,.aac"
                         />
 
                         {filePreview ? (
@@ -421,6 +477,28 @@ export function UploadButton() {
                               <FiX className="h-4 w-4 text-white" />
                             </button>
                           </div>
+                        ) : selectedFileName && form.getValues().file?.[0] && form.getValues().file[0].type.startsWith('video/') ? (
+                          <div className="relative mb-2 md:mb-4">
+                            <VideoPreview file={form.getValues().file[0]} />
+                            <button
+                              type="button"
+                              className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1 shadow-sm"
+                              onClick={clearSelectedFile}
+                            >
+                              <FiX className="h-4 w-4 text-white" />
+                            </button>
+                          </div>
+                        ) : selectedFileName && form.getValues().file?.[0] && form.getValues().file[0].type.startsWith('audio/') ? (
+                          <div className="relative mb-2 md:mb-4">
+                            <AudioPreview file={form.getValues().file[0]} />
+                            <button
+                              type="button"
+                              className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1 shadow-sm"
+                              onClick={clearSelectedFile}
+                            >
+                              <FiX className="h-4 w-4 text-white" />
+                            </button>
+                          </div>
                         ) : (
                           <div className={`flex flex-col items-center ${selectedFileName ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}>
                             {getFileIcon()}
@@ -430,7 +508,7 @@ export function UploadButton() {
                                   <span className="font-semibold">Click to upload</span> or drag and drop
                                 </p>
                                 <p className="text-xs text-gray-500 mt-1 text-center px-2">
-                                  PNG, JPG, GIF, PDF, DOCX or CSV (max 20MB)
+                                  PNG, JPG, GIF, PDF, DOCX, CSV, MP4, MP3, and more (max 20MB)
                                 </p>
                               </>
                             )}

@@ -12,7 +12,9 @@ import {
   FiX,
   FiZoomIn,
   FiZoomOut,
-  FiLoader
+  FiLoader,
+  FiVideo,
+  FiMusic
 } from "react-icons/fi";
 import { BiLoaderAlt } from "react-icons/bi";
 import { FaRegFileWord } from "react-icons/fa";
@@ -45,6 +47,8 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
       case 'pdf': return 'bg-red-100 text-red-800 border-red-200';
       case 'csv': return 'bg-green-100 text-green-800 border-green-200';
       case 'docx': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+      case 'video': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'audio': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -65,7 +69,9 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
               {file.type === "pdf" && <FiFileText className="h-5 w-5 text-red-500" />}
               {file.type === "csv" && <FiFileSpreadsheet className="h-5 w-5 text-green-500" />}
               {file.type === "docx" && <FaRegFileWord className="h-5 w-5 text-indigo-500" />}
-              {!["image", "pdf", "csv", "docx"].includes(file.type) && <FiFile className="h-5 w-5 text-gray-500" />}
+              {file.type === "video" && <FiVideo className="h-5 w-5 text-purple-500" />}
+              {file.type === "audio" && <FiMusic className="h-5 w-5 text-yellow-500" />}
+              {!["image", "pdf", "csv", "docx", "video", "audio"].includes(file.type) && <FiFile className="h-5 w-5 text-gray-500" />}
             </div>
             <DialogTitle className="text-base sm:text-lg font-medium truncate">
               {file.name}
@@ -210,8 +216,56 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
             </div>
           )}
           
+          {/* Video preview */}
+          {file.type === "video" && file.url && (
+            <div className="relative w-full h-full flex justify-center items-center">
+              <div className="max-w-4xl w-full">
+                <video 
+                  src={file.url} 
+                  controls 
+                  className="w-full max-h-[calc(90vh-120px)] rounded shadow-sm"
+                  onLoadedMetadata={() => setIsLoading(false)}
+                />
+                {isLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80">
+                    <div className="flex flex-col items-center gap-2">
+                      <BiLoaderAlt className="h-8 w-8 animate-spin text-purple-500" />
+                      <span className="text-sm text-gray-500">Loading video...</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Audio preview */}
+          {file.type === "audio" && file.url && (
+            <div className="relative w-full h-full flex justify-center items-center">
+              <div className="max-w-xl w-full bg-white p-6 rounded-lg border shadow-sm flex flex-col items-center">
+                <div className="mb-6 p-4 bg-yellow-50 rounded-full">
+                  <FiMusic className="w-16 h-16 text-yellow-500" />
+                </div>
+                <h3 className="text-lg font-medium text-center mb-4 text-gray-800">{file.name}</h3>
+                <audio 
+                  src={file.url} 
+                  controls 
+                  className="w-full" 
+                  onLoadedMetadata={() => setIsLoading(false)}
+                />
+                {isLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80">
+                    <div className="flex flex-col items-center gap-2">
+                      <BiLoaderAlt className="h-8 w-8 animate-spin text-yellow-500" />
+                      <span className="text-sm text-gray-500">Loading audio...</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
           {/* Fallback for unsupported file types or when no URL is available */}
-          {(!file.url || !["image", "pdf", "csv", "docx"].includes(file.type)) && (
+          {(!file.url || !["image", "pdf", "csv", "docx", "video", "audio"].includes(file.type)) && (
             <div className="flex flex-col items-center justify-center p-10 text-center overflow-hidden">
               {file.type === "pdf" ? (
                 <div className="relative bg-red-50 p-6 rounded-lg mb-4">
@@ -232,6 +286,20 @@ export function FilePreview({ file, isOpen, onOpenChange }: FilePreviewProps) {
                   <FaRegFileWord className="w-20 h-20 text-indigo-500" />
                   <div className="absolute top-2 right-2 px-2 py-1 bg-indigo-100 rounded text-xs text-indigo-800 font-medium">
                     DOCX
+                  </div>
+                </div>
+              ) : file.type === "video" ? (
+                <div className="relative bg-purple-50 p-6 rounded-lg mb-4">
+                  <FiVideo className="w-20 h-20 text-purple-500" />
+                  <div className="absolute top-2 right-2 px-2 py-1 bg-purple-100 rounded text-xs text-purple-800 font-medium">
+                    VIDEO
+                  </div>
+                </div>
+              ) : file.type === "audio" ? (
+                <div className="relative bg-yellow-50 p-6 rounded-lg mb-4">
+                  <FiMusic className="w-20 h-20 text-yellow-500" />
+                  <div className="absolute top-2 right-2 px-2 py-1 bg-yellow-100 rounded text-xs text-yellow-800 font-medium">
+                    AUDIO
                   </div>
                 </div>
               ) : (
