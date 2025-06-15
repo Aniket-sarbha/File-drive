@@ -258,10 +258,9 @@ async function safeParsePdf(buffer: Buffer): Promise<{ text: string }> {
         extractedText = filteredText;
       }
     }
-    
-    // Strategy 2: Look for text after BT (Begin Text) operators
+      // Strategy 2: Look for text after BT (Begin Text) operators
     if (!extractedText) {
-      const btMatches = bufferString.match(/BT\s+.*?ET/gs);
+      const btMatches = bufferString.match(/BT[\s\S]*?ET/g);
       if (btMatches) {
         for (const match of btMatches) {
           const textInBt = match.match(/\(([^)]*)\)/g);
@@ -280,13 +279,12 @@ async function safeParsePdf(buffer: Buffer): Promise<{ text: string }> {
         }
       }
     }
-    
-    // Strategy 3: Look for stream content with better parsing
+      // Strategy 3: Look for stream content with better parsing
     if (!extractedText) {
-      const streamMatches = bufferString.match(/stream\s+(.*?)\s+endstream/gs);
+      const streamMatches = bufferString.match(/stream[\s\S]*?endstream/g);
       if (streamMatches) {
         for (const match of streamMatches) {
-          let streamContent = match.replace(/^stream\s+/, '').replace(/\s+endstream$/, '');
+          let streamContent = match.replace(/^stream\s*/, '').replace(/\s*endstream$/, '');
           
           // Try to decode if it looks like it might be compressed
           try {
