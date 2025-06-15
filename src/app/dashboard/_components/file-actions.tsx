@@ -58,7 +58,6 @@ export function FileCardActions({
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
-
   // Function to handle summarization
   const handleSummarize = async () => {
     try {
@@ -66,6 +65,7 @@ export function FileCardActions({
       // Open the summary dialog immediately so the loading state is visible
       setIsSummaryOpen(true);
       
+      console.log("Starting summarization for file:", file._id);
       await summarizeFile({
         fileId: file._id,
       });
@@ -74,14 +74,39 @@ export function FileCardActions({
         description: "Your file has been summarized successfully",
       });
     } catch (error) {
+      console.error("Summarization error:", error);
+      
+      let errorMessage = "There was an error summarizing your file with Gemini";
+        if (error instanceof Error) {
+        if (error.message.includes("API key")) {
+          errorMessage = "Gemini API key not configured or invalid";
+        } else if (error.message.includes("quota") || error.message.includes("QUOTA")) {
+          errorMessage = "Gemini API quota exceeded. Please wait and try again later, or upgrade your API plan.";
+        } else if (error.message.includes("rate limit") || error.message.includes("RATE_LIMIT")) {
+          errorMessage = "Too many requests. Please wait a moment before trying again.";
+        } else if (error.message.includes("too short")) {
+          errorMessage = "File content is too short to generate a meaningful summary";
+        } else if (error.message.includes("not available")) {
+          errorMessage = "File content extraction not available for this file type";
+        } else if (error.message.includes("SAFETY")) {
+          errorMessage = "Content blocked by safety filters";
+        } else if (error.message.includes("INVALID_ARGUMENT")) {
+          errorMessage = "File content is too large or contains invalid characters";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         variant: "destructive",
         title: "Summarization failed",
-        description: "There was an error summarizing your file with Gemini",
+        description: errorMessage,
       });
+      
+      // Close the summary dialog if there's an error
+      setIsSummaryOpen(false);
     } finally {
       setSummaryLoading(false);
-      // No need to set isSummaryOpen here since we already opened it
     }
   };
 
